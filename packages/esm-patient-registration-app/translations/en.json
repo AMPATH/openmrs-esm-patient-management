@@ -115,5 +115,18 @@
   "updatePatientSuccessSnackbarSubtitle": "The patient's information has been successfully updated",
   "updatePatientSuccessSnackbarTitle": "Patient Details Updated",
   "yearsEstimateRequired": "Estimated years required",
-  "yes": "Yes"
+  "yes": "Yes",
+  "clientRegistry": "Client Registry",
+  "selectIdentifierType": "Select ID Type",
+  "enterIdentifier": "Enter ID Number",
+  "searchAndRequestOtp": "Search & Request OTP",
+  "enterOtp": "Enter OTP",
+  "verifyAndFetch": "Verify & Fetch Data",
+  "requesting": "Requesting...",
+  "verifying": "Verifying...",
+  "fetchedPatientData": "Fetched Patient Data",
+  "verifyCR": "Verify CR",
+  "verifyOTP": "Verify OTP",
+  "clientRegistryVerified": "Client Registry verified successfully",
+  "success": "Success"
 }
