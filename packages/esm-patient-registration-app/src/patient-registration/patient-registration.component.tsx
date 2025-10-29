@@ -257,15 +257,13 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
                     </div>
                   )}
 
-                  {sections
-                    // .filter((section) => section.id !== 'clientRegistry' && (isClientVerified || inEditMode))
-                    .map((section, index) => (
-                      <SectionWrapper
-                        key={`registration-section-${section.id}`}
-                        sectionDefinition={section}
-                        index={index}
-                      />
-                    ))}
+                  {sections.map((section, index) => (
+                    <SectionWrapper
+                      key={`registration-section-${section.id}`}
+                      sectionDefinition={section}
+                      index={index}
+                    />
+                  ))}
                 </div>
               </PatientRegistrationContextProvider>
             </div>
