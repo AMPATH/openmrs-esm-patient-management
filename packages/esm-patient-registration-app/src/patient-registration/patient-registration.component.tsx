@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Button, InlineLoading, Link , InlineNotification } from '@carbon/react';
+import { Button, InlineLoading, Link, InlineNotification } from '@carbon/react';
 import { XAxis } from '@carbon/react/icons';
 import { useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -225,9 +225,7 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
                   // Current session and identifiers are required for patient registration.
                   // If currentSession or identifierTypes are not available, then the
                   // user should be blocked to register the patient.
-                  disabled={
-                    !currentSession || !identifierTypes || props.isSubmitting || (!inEditMode && !isClientVerified)
-                  }>
+                  disabled={!currentSession || !identifierTypes || props.isSubmitting}>
                   {props.isSubmitting ? (
                     <InlineLoading
                       className={styles.spinner}
@@ -248,8 +246,6 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
             <div className={styles.infoGrid}>
               <PatientRegistrationContextProvider value={createContextValue(props)}>
                 <div>
-                  {!inEditMode && <ClientRegistryLookupSection onClientVerified={() => setIsClientVerified(true)} />}
-
                   {!isClientVerified && !inEditMode && (
                     <div className={styles.notificationSpacing} style={{ marginTop: '1rem' }}>
                       <InlineNotification
@@ -262,7 +258,7 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
                   )}
 
                   {sections
-                    .filter((section) => section.id !== 'clientRegistry' && (isClientVerified || inEditMode))
+                    // .filter((section) => section.id !== 'clientRegistry' && (isClientVerified || inEditMode))
                     .map((section, index) => (
                       <SectionWrapper
                         key={`registration-section-${section.id}`}

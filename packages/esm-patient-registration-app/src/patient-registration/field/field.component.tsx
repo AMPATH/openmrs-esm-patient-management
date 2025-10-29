@@ -11,6 +11,13 @@ import { Identifiers } from './id/id-field.component';
 import { NameField } from './name/name-field.component';
 import { PhoneField } from './phone/phone-field.component';
 import ClientRegistryLookupSection from '../client-registry-search/client-registry-search.component';
+import { EmailField } from './email/email-field.component';
+import { NextOfKinRelationshipField } from './next-of-kin/relationship/next-of-kin-relationship-field.component';
+import { NextOfKinPhoneField } from './next-of-kin/phone/next-of-kin-phone-field.component';
+import { NextOfKinResidenceField } from './next-of-kin/residence/next-of-kin-residence-field.component';
+import { NextOfKinNameField } from './next-of-kin/name/next-of-kin-name-field.component';
+import { HighestLevelOfEducationField } from '../education/highest-level-of-education-field.component';
+import { OccupationField } from '../occupation/occupation-field.component';
 
 export interface FieldProps {
   name: string;
@@ -50,6 +57,20 @@ export function Field({ name }: FieldProps) {
       return <PhoneField />;
     case 'clientRegistrySearch':
       return <ClientRegistryLookupSection />;
+    case 'nextOfKinName':
+      return <NextOfKinNameField />;
+    case 'nextOfKinRelationship':
+      return <NextOfKinRelationshipField />;
+    case 'nextOfKinPhoneNumber':
+      return <NextOfKinPhoneField />;
+    case 'nextOfKinResidence':
+      return <NextOfKinResidenceField />;
+    case 'email':
+      return <EmailField />;
+    case 'highestLevelEducation':
+      return <HighestLevelOfEducationField />;
+    case 'occupation':
+      return <OccupationField />;
     default:
       return <CustomField name={name} />;
   }

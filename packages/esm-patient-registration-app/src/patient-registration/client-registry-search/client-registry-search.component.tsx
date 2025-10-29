@@ -3,7 +3,8 @@ import { Button, TextInput, InlineLoading } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useFormikContext } from 'formik';
 import styles from '../patient-registration.scss';
-import { sendOtp, verifyOtp, fetchClientRegistryData } from './client-registry.resource';
+import { requestCustomOtp, validateCustomOtp, fetchClientRegistryData } from './client-registry.resource';
+import { applyClientRegistryMapping } from './map-client-registry-to-form-utils';
 
 export interface ClientRegistryLookupSectionProps {
   onClientVerified?: () => void;
@@ -16,24 +17,19 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+  const locationUuid = '18c343eb-b353-462a-9139-b16606e6b6c2';
 
-  // const handleSendOtp = async () => {
-  //   if (!identifier) {
-  //     showSnackbar({ kind: 'error', title: 'Missing Identifier', subtitle: 'Enter a valid National/Alien ID.' });
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   try {
-  //     const res = await sendOtp(identifier);
-  //     if (!res.ok) throw new Error(res?.data?.error || 'Failed to send OTP');
-  //     setOtpSent(true);
-  //     showSnackbar({ kind: 'success', title: 'OTP sent', subtitle: 'Check your phone for the verification code.' });
-  //   } catch (err) {
-  //     showSnackbar({ kind: 'error', title: 'Error sending OTP', subtitle: (err as Error).message });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  async function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ms);
+    try {
+      const response = await promise;
+      return response;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   const handleSendOtp = async () => {
     if (!identifier) {
@@ -46,26 +42,20 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     }
 
     setLoading(true);
-
     try {
-      // Simulate API delay with setTimeout
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Mock success or failure randomly
-          const success = Math.random() > 0.2; // 80% success rate
-          if (success) {
-            resolve({ ok: true });
-          } else {
-            reject(new Error('Failed to send OTP (mock error)'));
-          }
-        }, 2000); // 2-second mock delay
-      });
-
+      const payload = {
+        identificationNumber: identifier,
+        identificationType: 'National ID',
+        locationUuid,
+      };
+      const response = await withTimeout(requestCustomOtp(payload));
+      setSessionId(response.sessionId);
       setOtpSent(true);
+
       showSnackbar({
         kind: 'success',
-        title: 'OTP sent',
-        subtitle: 'Check your phone for the verification code.',
+        title: 'OTP sent successfully',
+        subtitle: `A code was sent to ${response.maskedPhone}`,
       });
     } catch (err) {
       showSnackbar({
@@ -78,29 +68,6 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     }
   };
 
-  // const handleVerifyOtp = async () => {
-  //   if (!otp) {
-  //     showSnackbar({ kind: 'error', title: 'Missing OTP', subtitle: 'Please enter the code sent to your phone.' });
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   try {
-  //     const res = await verifyOtp(identifier, otp);
-  //     if (!res.ok) throw new Error(res?.data?.error || 'Invalid OTP');
-  //     setOtpVerified(true);
-  //     onClientVerified?.();
-  //     showSnackbar({
-  //       kind: 'success',
-  //       title: 'OTP Verified',
-  //       subtitle: 'You can now fetch data from Client Registry.',
-  //     });
-  //   } catch (err) {
-  //     showSnackbar({ kind: 'error', title: 'OTP Verification Failed', subtitle: (err as Error).message });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleVerifyOtp = async () => {
     if (!otp) {
       showSnackbar({
@@ -112,23 +79,16 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     }
 
     setLoading(true);
-
     try {
-      // Simulate API delay
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const success = Math.random() > 0.2; // 80% success rate
-          if (success) {
-            resolve({ ok: true });
-          } else {
-            reject(new Error('Invalid OTP (mock error)'));
-          }
-        }, 2000);
-      });
+      const payload = {
+        sessionId,
+        otp,
+        locationUuid,
+      };
+      await withTimeout(validateCustomOtp(payload));
 
       setOtpVerified(true);
       onClientVerified?.();
-
       showSnackbar({
         kind: 'success',
         title: 'OTP Verified',
@@ -149,38 +109,25 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     setLoading(true);
 
     try {
-      const data = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const success = Math.random() > 0.1; // 90% success rate
-          if (success) {
-            // Mocked patient data
-            resolve({
-              ok: true,
-              data: {
-                person: {
-                  givenName: 'John',
-                  familyName: 'Doe',
-                  gender: 'M',
-                  birthdate: '1990-01-15',
-                },
-              },
-            });
-          } else {
-            reject(new Error('Unable to fetch client data (mock error)'));
-          }
-        }, 2500);
-      });
+      const payload = {
+        identificationNumber: identifier,
+        identificationType: 'National ID',
+        locationUuid,
+      };
+      const result = await withTimeout(fetchClientRegistryData(payload));
+      const patients = Array.isArray(result) ? result : [];
 
-      // Populate the form fields
-      setFieldValue('givenName', (data as any)?.data?.person?.givenName ?? '');
-      setFieldValue('familyName', (data as any)?.data?.person?.familyName ?? '');
-      setFieldValue('gender', (data as any)?.data?.person?.gender ?? '');
-      setFieldValue('birthdate', (data as any)?.data?.person?.birthdate ?? '');
+      if (patients.length === 0) {
+        throw new Error('No matching patient found.');
+      }
+
+      const patient = patients[0];
+      applyClientRegistryMapping(patient, setFieldValue);
 
       showSnackbar({
         kind: 'success',
         title: 'Client Data Loaded',
-        subtitle: 'Patient form updated successfully.',
+        subtitle: `Patient ${patient.first_name} ${patient.last_name} fetched successfully.`,
       });
     } catch (err) {
       showSnackbar({
@@ -193,26 +140,6 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     }
   };
 
-  // const handleFetchCR = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await fetchClientRegistryData(identifier);
-  //     if (!res.ok) throw new Error(res?.data?.error || 'Unable to fetch client data');
-  //     const data = res.data;
-  //     setFieldValue('givenName', data?.person?.givenName ?? '');
-  //     setFieldValue('familyName', data?.person?.familyName ?? '');
-  //     setFieldValue('gender', data?.person?.gender ?? '');
-  //     setFieldValue('birthdate', data?.person?.birthdate ?? '');
-  //     // Add other mappings (addresses, phone, identifiers) etc
-
-  //     showSnackbar({ kind: 'success', title: 'Client Data Loaded', subtitle: 'Patient form updated successfully.' });
-  //   } catch (err) {
-  //     showSnackbar({ kind: 'error', title: 'Fetch Failed', subtitle: (err as Error).message });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   return (
     <div className={styles.section}>
       <h4 className={styles.sectionTitle}>Client Registry</h4>
@@ -220,7 +147,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       <div className={styles.fieldGroup}>
         <TextInput
           id="client-registry-id"
-          labelText="National ID / Alien ID"
+          labelText="e.g. National ID, Alien ID"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
           disabled={otpSent}
@@ -229,7 +156,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
 
       <div style={{ marginTop: '0.75rem' }}>
         {!otpSent ? (
-          <Button size="sm" kind="secondary" onClick={handleSendOtp} disabled={loading}>
+          <Button kind="secondary" onClick={handleSendOtp} disabled={loading}>
             {loading ? <InlineLoading description="Sending..." /> : 'Send OTP'}
           </Button>
         ) : (
@@ -250,7 +177,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
                   {loading ? <InlineLoading description="Verifying..." /> : 'Verify OTP'}
                 </Button>
               ) : (
-                <Button size="sm" kind="primary" onClick={handleFetchCR} disabled={loading}>
+                <Button kind="primary" onClick={handleFetchCR} disabled={loading}>
                   {loading ? <InlineLoading description="Fetching..." /> : 'Fetch Client Registry Data'}
                 </Button>
               )}
