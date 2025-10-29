@@ -74,10 +74,8 @@ const fieldMapping: Record<string, string | { path: string; transform?: (value: 
 function mapNextOfKin(patient: PatientData, setFieldValue: (field: string, value: any) => void) {
   const alternativeContacts: AlternativeContact[] = patient.alternative_contacts || [];
 
-  // Find spouse as next of kin (highest priority)
   const spouseContact = alternativeContacts.find((contact) => contact.relationship.toLowerCase() === 'spouse');
 
-  // If no spouse, find any next of kin
   const nextOfKinContact =
     spouseContact ||
     alternativeContacts.find(
@@ -91,14 +89,7 @@ function mapNextOfKin(patient: PatientData, setFieldValue: (field: string, value
     setFieldValue('nextOfKin.nextOfKinRelationship', nextOfKinContact.relationship);
     setFieldValue('nextOfKin.nextOfKinPhoneNumber', nextOfKinContact.contact_id);
     setFieldValue('nextOfKin.nextOfKinResidence', patient.village_estate || patient.county || '');
-
-    // console.log('Mapped next of kin:', {
-    //   name: nextOfKinContact.contact_name,
-    //   relationship: nextOfKinContact.relationship,
-    //   phone: nextOfKinContact.contact_id,
-    // });
   } else {
-    // console.log('No next of kin found in alternative_contacts');
     setFieldValue('nextOfKin.nextOfKinName', '');
     setFieldValue('nextOfKin.nextOfKinRelationship', '');
     setFieldValue('nextOfKin.nextOfKinPhoneNumber', '');
@@ -116,11 +107,10 @@ function mapRelationships(patient: PatientData, setFieldValue: (field: string, v
       relationships.push({
         relationshipType: dependant.relationship, // "Child"
         relatedPersonName: `${person.first_name} ${person.middle_name || ''} ${person.last_name}`.trim(),
-        relatedPersonUuid: '', // Not available in CR
-        relationshipTypeUuid: '', // Will need to map to OpenMRS relationship type UUID
-        // Additional fields that might be needed
+        relatedPersonUuid: '',
+        relationshipTypeUuid: '',
         relativeName: `${person.first_name} ${person.middle_name || ''} ${person.last_name}`.trim(),
-        relativePhone: '', // Not available in dependants
+        relativePhone: '',
         relationship: dependant.relationship,
         birthdate: person.date_of_birth,
         gender: person.gender,
@@ -129,16 +119,10 @@ function mapRelationships(patient: PatientData, setFieldValue: (field: string, v
     }
   });
 
-  // Set relationships array to form field
   setFieldValue('relationships', relationships);
-
-  //   console.log(`Mapped ${relationships.length} relationships/dependants`);
 }
 
 export function applyClientRegistryMapping(patient: PatientData, setFieldValue: (field: string, value: any) => void) {
-  //   console.log('Raw CR patient data:', patient);
-
-  // First, map all basic fields
   Object.entries(fieldMapping).forEach(([formField, mapping]) => {
     let crField: string;
     let transformFn: (value: any) => any = (v) => v;
@@ -152,44 +136,10 @@ export function applyClientRegistryMapping(patient: PatientData, setFieldValue: 
 
     if (crField && patient[crField] !== undefined && patient[crField] !== null && patient[crField] !== '') {
       const value = transformFn(patient[crField]);
-      //   console.log(`Mapping field: ${crField} -> ${formField} = ${value}`);
       setFieldValue(formField, value);
     }
   });
 
-  // Map next of kin from alternative_contacts
   mapNextOfKin(patient, setFieldValue);
-
-  // Map relationships from dependants
   mapRelationships(patient, setFieldValue);
-
-  //   console.log('Completed mapping CR data to form fields');
 }
-
-// export function debugCRMapping(patient: PatientData) {
-// //   console.group('CR Payload Analysis');
-// //   console.log('Available fields in CR payload:');
-//   Object.keys(patient).forEach((key) => {
-//     if (typeof patient[key] !== 'object' || patient[key] === null) {
-//       console.log(`- ${key}:`, patient[key]);
-//     }
-//   });
-
-// //   console.log('Education/Employment fields:');
-// //   console.log('- employment_type:', patient.employment_type);
-// //   console.log('- civil_status:', patient.civil_status);
-
-// //   console.log('Next of Kin in alternative_contacts:');
-// //   (patient.alternative_contacts || []).forEach((contact: AlternativeContact, index: number) => {
-// //     console.log(
-// //       `  [${index}] ${contact.contact_name} - ${contact.relationship} - ${contact.contact_id} - ${contact.remarks}`,
-// //     );
-// //   });
-
-// //   console.log('Dependants/Relationships:');
-// //   (patient.dependants || []).forEach((dependant: Dependant, index: number) => {
-// //     console.log(`  [${index}] ${dependant.relationship}:`, dependant.result?.[0]?.first_name || 'No result');
-// //   });
-
-// //   console.groupEnd();
-// }

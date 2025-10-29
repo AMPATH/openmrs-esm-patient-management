@@ -56,11 +56,6 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       }
 
       const patient = patients[0];
-
-      // Debug: Show what's in the CR payload
-      // debugCRMapping(patient);
-
-      // Apply the enhanced mapping
       applyClientRegistryMapping(patient, setFieldValue);
 
       showSnackbar({
@@ -68,38 +63,6 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
         title: 'Client Data Loaded',
         subtitle: `Patient ${patient.first_name} ${patient.last_name} fetched successfully. Loaded education, next of kin, and relationships.`,
       });
-
-      // Log the final form values for debugging
-      // setTimeout(() => {
-      //   console.log('Final form values after mapping:', {
-      //     // Basic info
-      //     givenName: values.givenName,
-      //     familyName: values.familyName,
-      //     gender: values.gender,
-      //     birthdate: values.birthdate,
-
-      //     // Education & Occupation
-      //     education: values.academicOccupation?.highestLevelEducation,
-      //     occupation: values.academicOccupation?.occupation,
-      //     civilStatus: values.civilStatus,
-
-      //     // Next of Kin
-      //     nextOfKin: values.nextOfKin,
-
-      //     // Relationships
-      //     relationships: values.relationships,
-
-      //     // Contact
-      //     phone: values.phone,
-      //     email: values.email,
-
-      //     // Address
-      //     county: values.county,
-      //     subCounty: values.subCounty,
-      //     ward: values.ward,
-      //     village: values.village,
-      //   });
-      // }, 1000);
     } catch (err) {
       const errorMessage = err.message || 'Failed to fetch client data';
       setError(errorMessage);
