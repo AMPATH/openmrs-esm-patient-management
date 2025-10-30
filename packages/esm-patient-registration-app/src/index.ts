@@ -45,6 +45,10 @@ export const editPatient = getAsyncLifecycle(() => import('./root.component'), o
 export const addPatientLink = getSyncLifecycle(addPatientLinkComponent, options);
 
 export const cancelPatientEditModal = getAsyncLifecycle(() => import('./widgets/cancel-patient-edit.modal'), options);
+export const clientRegistryVerificationModal = getAsyncLifecycle(
+  () => import('./widgets/client-registry-verification.modal'),
+  options,
+);
 
 export const patientPhotoExtension = getAsyncLifecycle(() => import('./patient-photo.extension'), options);
 
@@ -55,5 +59,10 @@ export const editPatientDetailsButton = getAsyncLifecycle(
 
 export const deleteIdentifierConfirmationModal = getAsyncLifecycle(
   () => import('./widgets/delete-identifier-confirmation.modal'),
+  options,
+);
+
+export const clientRegistryVerificationTag = getAsyncLifecycle(
+  () => import('./patient-registration/client-registry-search/client-registry-verification-tag.component'),
   options,
 );

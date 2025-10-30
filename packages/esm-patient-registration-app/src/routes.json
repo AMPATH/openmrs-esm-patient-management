@@ -46,6 +46,13 @@
       "slot": "patient-search-actions-slot",
       "online": true,
       "offline": true
+    },
+    {
+      "component": "clientRegistryVerificationTag",
+      "name": "client-registry-verification-tag",
+      "slot": "patient-banner-tags-slot",
+      "online": true,
+      "offline": true
     }
   ],
   "modals": [
@@ -56,6 +63,10 @@
     {
       "name": "delete-identifier-confirmation-modal",
       "component": "deleteIdentifierConfirmationModal"
+    },
+    {
+      "name": "client-registry-verification-modal",
+      "component": "clientRegistryVerificationModal"
     }
   ]
 }
