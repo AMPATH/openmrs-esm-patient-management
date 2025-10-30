@@ -91,14 +91,7 @@ function mapNextOfKin(patient: PatientData, setFieldValue: (field: string, value
     setFieldValue('nextOfKin.nextOfKinRelationship', nextOfKinContact.relationship);
     setFieldValue('nextOfKin.nextOfKinPhoneNumber', nextOfKinContact.contact_id);
     setFieldValue('nextOfKin.nextOfKinResidence', patient.village_estate || patient.county || '');
-
-    // console.log('Mapped next of kin:', {
-    //   name: nextOfKinContact.contact_name,
-    //   relationship: nextOfKinContact.relationship,
-    //   phone: nextOfKinContact.contact_id,
-    // });
   } else {
-    // console.log('No next of kin found in alternative_contacts');
     setFieldValue('nextOfKin.nextOfKinName', '');
     setFieldValue('nextOfKin.nextOfKinRelationship', '');
     setFieldValue('nextOfKin.nextOfKinPhoneNumber', '');
@@ -155,6 +148,22 @@ function mapContactDetails(patient: PatientData, setFieldValue: (field: string, 
   }
 }
 
+function mapIdentifiers(patient: PatientData, setFieldValue: (field: string, value: any) => void) {
+  if (patient['id']) {
+    const crIdentifier = {
+      identifierTypeUuid: 'e88dc246-3614-4ee3-8141-1f2a83054e72',
+      initialValue: patient['id'],
+      identifierValue: patient['id'],
+      identifierName: 'CR',
+      selectedSource: null,
+      autoGeneration: false,
+      preferred: false,
+      required: true,
+    };
+    setFieldValue('identifiers.cr', crIdentifier);
+  }
+}
+
 export function applyClientRegistryMapping(patient: PatientData, setFieldValue: (field: string, value: any) => void) {
   Object.entries(fieldMapping).forEach(([formField, mapping]) => {
     let crField: string;
@@ -177,4 +186,5 @@ export function applyClientRegistryMapping(patient: PatientData, setFieldValue: 
   mapRelationships(patient, setFieldValue);
   mapAddresses(patient, setFieldValue);
   mapContactDetails(patient, setFieldValue);
+  mapIdentifiers(patient, setFieldValue);
 }
