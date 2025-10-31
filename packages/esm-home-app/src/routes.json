@@ -18,6 +18,13 @@
       "component": "homeNavMenu",
       "online": true,
       "offline": true
+    },
+     {
+      "component": "facilityRegistryLink",
+      "name": "facility-registry-link",
+      "slot": "app-menu-slot",
+      "online": true,
+      "offline": true
     }
   ]
 }

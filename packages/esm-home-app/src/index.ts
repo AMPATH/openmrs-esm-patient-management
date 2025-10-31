@@ -1,4 +1,4 @@
-import { defineConfigSchema, getSyncLifecycle } from '@openmrs/esm-framework';
+import { defineConfigSchema, getAsyncLifecycle, getSyncLifecycle } from '@openmrs/esm-framework';
 import { configSchema } from './config-schema';
 import homeNavMenuComponent from './side-menu/side-menu.component';
 import rootComponent from './root.component';
@@ -16,6 +16,14 @@ export const importTranslation = require.context('../translations', true, /.json
 export const root = getSyncLifecycle(rootComponent, options);
 
 export const homeNavMenu = getSyncLifecycle(homeNavMenuComponent, options);
+
+export const facilityRegistryLink = getAsyncLifecycle(
+  () => import('./widgets/facility-registry/facility-registry-link.extension'),
+  {
+    featureName: 'facility-registry-link',
+    moduleName,
+  },
+);
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);

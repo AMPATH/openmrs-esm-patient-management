@@ -4,6 +4,7 @@ import { useConfig, useLeftNav } from '@openmrs/esm-framework';
 import DashboardContainer from './dashboard-container/dashboard-container.component';
 import { type HomeConfig } from './config-schema';
 import { DefaultDashboardRedirect } from './default-dashboard-redirect.component';
+import FacilityRegistry from './widgets/facility-registry/facility-registry.component';
 
 const Root: React.FC = () => {
   const spaBasePath = window.spaBase;
@@ -20,6 +21,7 @@ const Root: React.FC = () => {
         <Routes>
           <Route path="/home" element={<DefaultDashboardRedirect />} />
           <Route path="/home/:dashboard/*" element={<DashboardContainer />} />
+          <Route path="/home/facility-registry" element={<FacilityRegistry />} />
         </Routes>
       </BrowserRouter>
     </main>
