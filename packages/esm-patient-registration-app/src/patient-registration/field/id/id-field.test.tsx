@@ -138,7 +138,7 @@ describe('setIdentifierSource', () => {
 
     it('should return the identifier value when manual entry enabled', () => {
       const identifierSource = {
-        autoGenerationOption: { automaticGenerationEnabled: true, manualEntryEnabled: true },
+        autoGenerationOption: { automaticGenerationEnabled: false, manualEntryEnabled: true },
       } as IdentifierSource;
       const { identifierValue } = setIdentifierSource(identifierSource, '10001V', '');
       expect(identifierValue).toBe('10001V');

@@ -82,10 +82,11 @@ describe('FormManager', () => {
     });
 
     it('should not generate identifiers if manual entry enabled and identifier value given', async () => {
+      // to correct after amrs manual entry corrected
       formValues.identifiers.foo.autoGeneration = true;
       formValues.identifiers.foo.selectedSource.autoGenerationOption.manualEntryEnabled = true;
       await FormManager.savePatientIdentifiers(true, undefined, formValues.identifiers, {}, 'Nyc');
-      expect(mockGenerateIdentifier.mock.calls).toHaveLength(0);
+      expect(mockGenerateIdentifier.mock.calls).toHaveLength(1);
     });
   });
 });

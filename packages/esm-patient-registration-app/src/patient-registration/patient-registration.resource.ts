@@ -47,13 +47,14 @@ export function saveEncounter(encounter: Encounter) {
 
 export function generateIdentifier(source: string) {
   const abortController = new AbortController();
-
-  return openmrsFetch(`${restBaseUrl}/idgen/identifiersource/${source}/identifier`, {
+  return openmrsFetch(`https://ngx.ampath.or.ke/amrs-id-generator/generateidentifier`, {
     headers: {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    body: {},
+    body: {
+      user: 1,
+    },
     signal: abortController.signal,
   });
 }
