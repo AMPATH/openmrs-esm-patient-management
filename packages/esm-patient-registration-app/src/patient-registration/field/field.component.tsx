@@ -57,20 +57,6 @@ export function Field({ name }: FieldProps) {
       return <PhoneField />;
     case 'clientRegistrySearch':
       return <ClientRegistryLookupSection />;
-    case 'nextOfKinName':
-      return <NextOfKinNameField />;
-    case 'nextOfKinRelationship':
-      return <NextOfKinRelationshipField />;
-    case 'nextOfKinPhoneNumber':
-      return <NextOfKinPhoneField />;
-    case 'nextOfKinResidence':
-      return <NextOfKinResidenceField />;
-    case 'email':
-      return <EmailField />;
-    case 'highestLevelEducation':
-      return <HighestLevelOfEducationField />;
-    case 'occupation':
-      return <OccupationField />;
     default:
       return <CustomField name={name} />;
   }

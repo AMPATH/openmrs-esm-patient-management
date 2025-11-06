@@ -75,59 +75,6 @@ export interface RegistrationConfig {
         matches?: string;
       };
     };
-    email: {
-      personAttributeUuid: string;
-      validation?: {
-        required: boolean;
-        matches?: string;
-      };
-    };
-    nextOfKin: {
-      nextOfKinName: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-      nextOfKinRelationship: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-      nextOfKinPhoneNumber: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-      nextOfKinResidence: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-    };
-    academicOccupation: {
-      highestLevelEducation: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-      occupation: {
-        personAttributeUuid: string;
-        validation?: {
-          required: boolean;
-          matches?: string;
-        };
-      };
-    };
   };
   links: {
     submitButton: string;
@@ -139,73 +86,35 @@ export interface RegistrationConfig {
     registrationFormUuid: string | null;
   };
   freeTextFieldConceptUuid: string;
-  clientRegistry?: ClientRegistryConfig;
-}
-
-export interface IdentifierType {
-  value: string;
-  label?: string;
-}
-
-export interface ClientRegistryConfig {
-  enabled: boolean;
-  identifierTypes: Array<IdentifierType>;
-  otpVerificationEndpoint: string;
-  patientDataFetchEndpoint: string;
-  autoPopulateFields: boolean;
 }
 
 export const builtInSections: Array<SectionDefinition> = [
-  {
-    id: 'clientRegistry',
-    name: 'Client Registry',
-    fields: ['clientRegistrySearch'],
-  },
   {
     id: 'demographics',
     name: 'Basic Info',
     fields: ['name', 'gender', 'dob', 'id'],
   },
-  { id: 'contact', name: 'Contact Details', fields: ['address', 'phone', 'email'] },
-  {
-    id: 'academicOccupation',
-    name: 'Education and Occupation Details',
-    fields: ['highestLevelEducation', 'occupation'],
-  },
+  { id: 'contact', name: 'Contact Details', fields: ['address', 'phone'] },
   { id: 'death', name: 'Death Info', fields: ['dateAndTimeOfDeath', 'causeOfDeath'] },
-  {
-    id: 'nextOfKin',
-    name: 'Next of Kin Details',
-    fields: ['nextOfKinName', 'nextOfKinRelationship', 'nextOfKinPhoneNumber', 'nextOfKinResidence'],
-  },
   { id: 'relationships', name: 'Relationships', fields: [] },
 ];
 
 // These fields are handled specially in field.component.tsx
 export const builtInFields = [
-  'clientRegistrySearch',
   'name',
   'gender',
   'dob',
   'id',
   'address',
   'phone',
-  'email',
   'causeOfDeath',
   'dateAndTimeOfDeath',
-  'nextOfKin',
-  'nextOfKinName',
-  'nextOfKinRelationship',
-  'nextOfKinPhoneNumber',
-  'nextOfKinResidence',
-  'highestLevelEducation',
-  'occupation',
 ] as const;
 
 export const esmPatientRegistrationSchema = {
   sections: {
     _type: Type.Array,
-    _default: ['clientRegistry', 'demographics', 'contact', 'academicOccupation', 'nextOfKin', 'relationships'],
+    _default: ['demographics', 'contact', 'relationships'],
     _description: `An array of strings which are the keys from 'sectionDefinitions' or any of the following built-in sections: '${builtInSections
       .map((s) => s.id)
       .join("', '")}'.`,
@@ -379,6 +288,12 @@ export const esmPatientRegistrationSchema = {
         {
           value: 'female',
         },
+        {
+          value: 'other',
+        },
+        {
+          value: 'unknown',
+        },
       ],
       _description:
         'The options for sex selection during patient registration. This is Administrative Gender as it is called by FHIR (Possible options are limited to those defined in FHIR Administrative Gender, see https://hl7.org/fhir/R4/valueset-administrative-gender.html).',
@@ -448,7 +363,7 @@ export const esmPatientRegistrationSchema = {
     phone: {
       personAttributeUuid: {
         _type: Type.UUID,
-        _default: '72a759a8-1359-11df-a1f1-0026b9348838',
+        _default: '14d4f066-15f5-102d-96e4-000c29c2a5d7',
         _description: 'The UUID of the phone number person attribute type',
       },
       validation: {
@@ -460,59 +375,6 @@ export const esmPatientRegistrationSchema = {
           _type: Type.String,
           _default: '',
           _description: 'Optional RegEx for testing the validity of the input.',
-        },
-      },
-    },
-    email: {
-      personAttributeUuid: {
-        _type: Type.UUID,
-        _default: '2f65dbcb-3e58-45a3-8be7-fd1dc9aa0faa',
-        _description: 'The UUID of the person email attribute type',
-      },
-    },
-    nextOfKin: {
-      nextOfKinName: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: '72a75bec-1359-11df-a1f1-0026b9348838',
-          _description: 'The UUID of the next of kin name attribute type',
-        },
-      },
-      nextOfKinRelationship: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: '5730994e-c267-426b-87b6-c152b606973d',
-          _description: 'The UUID of the next of kin relationship attribute type',
-        },
-      },
-      nextOfKinPhoneNumber: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: 'a657a4f1-9c0f-444b-a1fd-445bb91dd12d',
-          _description: 'The UUID of the next of kin phone number attribute type',
-        },
-      },
-      nextOfKinResidence: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: 'f38bd1be-c54c-4863-8497-3670292881eb',
-          _description: 'The UUID of the next of kin residence attribute type',
-        },
-      },
-    },
-    academicOccupation: {
-      highestLevelEducation: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: '352b0d51-63c6-47d0-a295-156bebee4fd5',
-          _description: 'The UUID of the the highest level of education attribute type',
-        },
-      },
-      occupation: {
-        personAttributeUuid: {
-          _type: Type.UUID,
-          _default: '9e86409f-9c20-42d0-aeb3-f29a4ca0a7a0',
-          _description: 'The UUID of the occupation attribute type',
         },
       },
     },
@@ -604,37 +466,6 @@ export const esmPatientRegistrationSchema = {
       },
     ),
   ],
-  clientRegistry: {
-    enabled: {
-      _type: Type.Boolean,
-      _default: false,
-      _description: 'Enable the Client Registry search and verification section.',
-    },
-    identifierTypes: {
-      _type: Type.Array,
-      _default: [],
-      _description: 'The list of identifier types to show in the dropdown.',
-      _elements: {
-        value: { _type: Type.String },
-        label: { _type: Type.String, _default: '' },
-      },
-    },
-    otpVerificationEndpoint: {
-      _type: Type.String,
-      _default: '',
-      _description: 'The endpoint for verifying the OTP.',
-    },
-    patientDataFetchEndpoint: {
-      _type: Type.String,
-      _default: '',
-      _description: 'The endpoint to fetch patient data after successful OTP verification.',
-    },
-    autoPopulateFields: {
-      _type: Type.Boolean,
-      _default: false,
-      _description: 'Whether to automatically populate form fields with the fetched data.',
-    },
-  },
 };
 
 function stringifyDefinitions(sectionDefinitions: Array<SectionDefinition | FieldDefinition>) {
