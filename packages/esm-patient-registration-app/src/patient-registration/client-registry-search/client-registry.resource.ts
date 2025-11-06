@@ -10,7 +10,7 @@ import {
 } from './client-registry.types';
 import { mapAmrsPatientRelationship } from './map-client-registry-to-form-utils';
 
-const HIE_BASE_URL = 'https://ngx.ampath.or.ke/hie';
+const HIE_BASE_URL = 'https://staging.ampath.or.ke/hie';
 
 async function postJson<T>(url: string, payload: unknown): Promise<T> {
   const response = await fetch(url, {

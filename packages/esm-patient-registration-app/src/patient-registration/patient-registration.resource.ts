@@ -47,21 +47,20 @@ export function saveEncounter(encounter: Encounter) {
 
 export function generateIdentifier(source: string) {
   const abortController = new AbortController();
-  return openmrsFetch(`https://ngx.ampath.or.ke/amrs-id-generator/generateidentifier`, {
+
+  return openmrsFetch(`${restBaseUrl}/idgen/identifiersource/${source}/identifier`, {
     headers: {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    body: {
-      user: 1,
-    },
+    body: {},
     signal: abortController.signal,
   });
 }
 
 export async function generateAmrsUniversalIdentifier() {
   const abortController = new AbortController();
-  const resp = await openmrsFetch(`https://ngx.ampath.or.ke/amrs-id-generator/generateidentifier`, {
+  const resp = await openmrsFetch(`https://staging.ampath.or.ke/amrs-id-generator/generateidentifier`, {
     headers: {
       'Content-Type': 'application/json',
     },

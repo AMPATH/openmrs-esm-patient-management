@@ -1,4 +1,4 @@
-const HIE_BASE_URL = 'https://ngx.ampath.or.ke/hie';
+const HIE_BASE_URL = 'https://staging.ampath.or.ke/hie';
 
 export type RequestCustomOtpDto = {
   identificationNumber: string | number;
