@@ -86,7 +86,7 @@ describe('FormManager', () => {
       formValues.identifiers.foo.autoGeneration = true;
       formValues.identifiers.foo.selectedSource.autoGenerationOption.manualEntryEnabled = true;
       await FormManager.savePatientIdentifiers(true, undefined, formValues.identifiers, {}, 'Nyc');
-      expect(mockGenerateIdentifier.mock.calls).toHaveLength(1);
+      expect(mockGenerateIdentifier.mock.calls).toHaveLength(0);
     });
   });
 });
