@@ -25,6 +25,7 @@ import { type SavePatientForm, SavePatientTransactionManager } from './form-mana
 import { useInitialAddressFieldValues, useInitialFormValues, usePatientUuidMap } from './patient-registration-hooks';
 import BeforeSavePrompt from './before-save-prompt';
 import styles from './patient-registration.scss';
+import customStyles from './custom-patient-registration.scss';
 import ClientRegistryLookupSection from './client-registry/client-registry-search.component';
 
 let exportedInitialFormValuesForTesting = {} as FormValues;
@@ -65,6 +66,7 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
   const { data: photo } = usePatientPhoto(patientToEdit?.id);
   const savePatientTransactionManager = useRef(new SavePatientTransactionManager());
   const validationSchema = getValidationSchema(config, t);
+  const [showVerifyModal, setShowVerifyModal] = useState<boolean>(false);
 
   useEffect(() => {
     exportedInitialFormValuesForTesting = initialFormValues;
@@ -166,6 +168,13 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
     }
   };
 
+  const openVerifyModal = () => {
+    setShowVerifyModal(true);
+  };
+  const closeVerifyModal = () => {
+    setShowVerifyModal(false);
+  };
+
   const createContextValue = useCallback(
     (formikProps) => ({
       identifierTypes,
@@ -244,20 +253,22 @@ export const PatientRegistration: React.FC<PatientRegistrationProps> = ({ savePa
             </div>
             <div className={styles.infoGrid}>
               <PatientRegistrationContextProvider value={createContextValue(props)}>
-                <div>
-                  {!isClientVerified && !inEditMode && (
-                    <div className={styles.notificationSpacing} style={{ marginTop: '1rem' }}>
-                      <InlineNotification
-                        title="Verification required"
-                        subtitle="Please complete Client Registry OTP verification before proceeding with registration."
-                        kind="info"
-                        lowContrast
+                <div className={customStyles.patientVerification}>
+                  <h4>Patient Verification</h4>
+                  <Button onClick={openVerifyModal}>Verify CR</Button>
+                  {showVerifyModal ? (
+                    <>
+                      <ClientRegistryLookupSection
+                        onClientVerified={() => setIsClientVerified(true)}
+                        onModalClose={closeVerifyModal}
+                        open={showVerifyModal}
                       />
-                    </div>
+                    </>
+                  ) : (
+                    <></>
                   )}
-
-                  <ClientRegistryLookupSection onClientVerified={() => setIsClientVerified(true)} />
-
+                </div>
+                <div>
                   {sections.map((section, index) => (
                     <SectionWrapper
                       key={`registration-section-${section.id}`}

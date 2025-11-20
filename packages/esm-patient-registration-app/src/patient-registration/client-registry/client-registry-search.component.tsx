@@ -1,13 +1,31 @@
 import React, { useState } from 'react';
-import { Button, TextInput, InlineLoading, InlineNotification, Dropdown } from '@carbon/react';
+import {
+  Button,
+  TextInput,
+  InlineLoading,
+  InlineNotification,
+  Dropdown,
+  Modal,
+  ModalBody,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from '@carbon/react';
 import { showSnackbar, useSession } from '@openmrs/esm-framework';
 import { useFormikContext } from 'formik';
-import styles from '../patient-registration.scss';
+import styles from './client-registry-search.scss';
 import { requestCustomOtp, validateCustomOtp, fetchClientRegistryData } from './client-registry.resource';
 import { applyClientRegistryMapping } from './map-client-registry-to-form-utils';
+import ClientDetails from './client-details/client-details';
+import { type HieClient } from './types';
+import ClientDependantList from './client-dependants/list/client-depandants.component';
 
 export interface ClientRegistryLookupSectionProps {
   onClientVerified?: () => void;
+  onModalClose: () => void;
+  open: boolean;
 }
 
 export type IdentifierType = 'National ID' | 'Alien ID' | 'Passport' | 'Mandate Number' | 'Refugee ID';
@@ -20,7 +38,11 @@ export const IDENTIFIER_TYPES: IdentifierType[] = [
   'Refugee ID',
 ];
 
-const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = ({ onClientVerified }) => {
+const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = ({
+  onClientVerified,
+  open,
+  onModalClose,
+}) => {
   const { setFieldValue } = useFormikContext<any>();
   const [identifierType, setIdentifierType] = useState<IdentifierType>('National ID');
   const [identifierValue, setIdentifierValue] = useState('');
@@ -31,6 +53,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const [sessionId, setSessionId] = useState('');
   const [error, setError] = useState<string>('');
   const { sessionLocation } = useSession();
+  const [client, setClient] = useState<HieClient>();
   const locationUuid = sessionLocation?.uuid;
 
   async function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
@@ -64,8 +87,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       if (patients.length === 0) throw new Error('No matching patient found in Client Registry.');
 
       const patient = patients[0];
-      applyClientRegistryMapping(patient, setFieldValue);
-
+      setClient(patient);
       showSnackbar({
         kind: 'success',
         title: 'Client Data Loaded',
@@ -156,77 +178,142 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     }
   };
 
+  const useHieData = () => {
+    applyClientRegistryMapping(client, setFieldValue);
+    onModalClose();
+  };
+  const registerOnAfyaYangu = () => {
+    window.open('https://afyayangu.go.ke/', '_blank');
+  };
+
   return (
-    <div className={styles.section}>
-      <h4 className={styles.sectionTitle}>Client Registry Verification</h4>
+    <Modal
+      open={open}
+      size="lg"
+      onSecondarySubmit={onModalClose}
+      onRequestClose={onModalClose}
+      onRequestSubmit={registerOnAfyaYangu}
+      primaryButtonText="Register on Afya Yangu"
+      secondaryButtonText="Cancel">
+      <ModalBody>
+        <div className={styles.modalVerificationLayout}>
+          <h4 className={styles.sectionTitle}>Client Registry Verification</h4>
 
-      {error && (
-        <div className={styles.notificationSpacing}>
-          <InlineNotification title="Error" subtitle={error} kind="error" lowContrast />
-        </div>
-      )}
-
-      <div className={styles.fieldGroup}>
-        <Dropdown
-          id="identifier-type-dropdown"
-          label="Identifier Type"
-          titleText="Select Identifier Type"
-          items={IDENTIFIER_TYPES}
-          selectedItem={identifierType}
-          onChange={({ selectedItem }) => setIdentifierType(selectedItem as IdentifierType)}
-          disabled={otpSent}
-        />
-      </div>
-
-      <div className={styles.fieldGroup}>
-        <TextInput
-          id="identifier-value"
-          labelText={`${identifierType} Value`}
-          value={identifierValue}
-          onChange={(e) => setIdentifierValue(e.target.value)}
-          disabled={otpSent}
-          placeholder={`Enter ${identifierType.toLowerCase()} value`}
-        />
-      </div>
-
-      <div style={{ marginTop: '0.75rem' }}>
-        {!otpSent ? (
-          <Button kind="secondary" onClick={handleSendOtp} disabled={loading}>
-            {loading ? <InlineLoading description="Sending..." /> : 'Send OTP'}
-          </Button>
-        ) : (
-          <>
-            <div style={{ marginTop: '0.75rem' }}>
-              <TextInput
-                id="otp-input"
-                labelText="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                disabled={otpVerified}
-                placeholder="Enter the code sent to your phone"
-              />
+          {error && (
+            <div className={styles.notificationSpacing}>
+              <InlineNotification title="Error" subtitle={error} kind="error" lowContrast />
             </div>
+          )}
+          {!client ? (
+            <div className={styles.formSection}>
+              {!otpSent ? (
+                <>
+                  <div className={styles.formRow}>
+                    <div className={styles.formControl}>
+                      <Dropdown
+                        id="identifier-type-dropdown"
+                        label="Identifier Type"
+                        titleText="Select Identifier Type"
+                        items={IDENTIFIER_TYPES}
+                        selectedItem={identifierType}
+                        onChange={({ selectedItem }) => setIdentifierType(selectedItem as IdentifierType)}
+                        disabled={otpSent}
+                      />
+                    </div>
 
-            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-              {!otpVerified ? (
-                <Button size="sm" kind="secondary" onClick={handleVerifyOtp} disabled={loading}>
-                  {loading ? <InlineLoading description="Verifying..." /> : 'Verify OTP'}
-                </Button>
+                    <div className={styles.formControl}>
+                      <TextInput
+                        id="identifier-value"
+                        labelText={`${identifierType} Value`}
+                        value={identifierValue}
+                        onChange={(e) => setIdentifierValue(e.target.value)}
+                        disabled={otpSent}
+                        placeholder={`Enter ${identifierType.toLowerCase()} value`}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.formControl}>
+                      <Button kind="primary" onClick={handleSendOtp} disabled={loading}>
+                        {loading ? <InlineLoading description="Sending..." /> : 'Send OTP'}
+                      </Button>
+                    </div>
+                  </div>
+                </>
               ) : (
-                <Button kind="primary" onClick={handleFetchCR} disabled={loading}>
-                  {loading ? <InlineLoading description="Fetching..." /> : 'Fetch Client Registry Data'}
-                </Button>
-              )}
-              {!otpVerified && (
-                <Button size="sm" kind="tertiary" onClick={() => setOtpSent(false)}>
-                  Change ID
-                </Button>
+                <>
+                  {!otpVerified ? (
+                    <>
+                      <div className={styles.formRow}>
+                        <div className={styles.formControl}>
+                          <TextInput
+                            id="otp-input"
+                            labelText="Enter OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            disabled={otpVerified}
+                            placeholder="Enter the code sent to your phone"
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.formRow}>
+                        <div className={styles.actionBtn}>
+                          <Button kind="primary" onClick={handleVerifyOtp} disabled={loading}>
+                            {loading ? <InlineLoading description="Verifying..." /> : 'Verify OTP'}
+                          </Button>
+                        </div>
+                        <div className={styles.actionBtn}>
+                          <Button kind="secondary" onClick={handleSendOtp} disabled={loading}>
+                            {loading ? <InlineLoading description="Resending OTP..." /> : 'Resend OTP'}
+                          </Button>
+                        </div>
+                        <div className={styles.actionBtn}>
+                          <Button kind="tertiary" onClick={() => setOtpSent(false)}>
+                            Back
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className={styles.formRow}>
+                        <div className={styles.formControl}>
+                          <Button kind="primary" onClick={handleFetchCR} disabled={loading}>
+                            {loading ? <InlineLoading description="Fetching..." /> : 'Fetch Client Registry Data'}
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
             </div>
-          </>
-        )}
-      </div>
-    </div>
+          ) : (
+            <></>
+          )}
+
+          {otpVerified && client ? (
+            <div className="clientDataSection">
+              <Tabs>
+                <TabList contained>
+                  <Tab>Patient</Tab>
+                  <Tab>Dependants</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>{client ? <ClientDetails client={client} /> : <></>}</TabPanel>
+                  <TabPanel>
+                    {client.dependants ? <ClientDependantList hieDependants={client.dependants} /> : <></>}
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+              <Button onClick={useHieData}>Use Data</Button>
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
+      </ModalBody>
+    </Modal>
   );
 };
 
