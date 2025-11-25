@@ -1,5 +1,6 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import {
+  type CreatePatientDto,
   type AmrsPerson,
   type ClientRegistrySearchRequest,
   type ClientRegistrySearchResponse,
@@ -7,7 +8,9 @@ import {
   type RequestCustomOtpResponse,
   type ValidateCustomOtpResponse,
   type ValidateHieCustomOtpDto,
-} from './client-registry.types';
+  type CreateRelationshipDto,
+  type CreatePersonDto,
+} from '../client-registry/types';
 import { mapAmrsPatientRelationship } from './map-client-registry-to-form-utils';
 
 const HIE_BASE_URL = 'https://staging.ampath.or.ke/hie';
@@ -101,7 +104,7 @@ export async function updatePerson(patientUuid: string, payload: unknown) {
   });
 }
 
-export async function createPerson(payload: unknown) {
+export async function createPerson(payload: CreatePersonDto) {
   return await openmrsFetch<AmrsPerson>(`${restBaseUrl}/person`, {
     method: 'POST',
     headers: {
@@ -111,7 +114,7 @@ export async function createPerson(payload: unknown) {
   });
 }
 
-export async function createRelationship(payload: unknown) {
+export async function createRelationship(payload: CreateRelationshipDto) {
   return await openmrsFetch(`${restBaseUrl}/relationship`, {
     method: 'POST',
     headers: {
@@ -132,4 +135,14 @@ export async function getRelationships(patientUuid: string) {
     return mapAmrsPatientRelationship(patientUuid, response.data.results);
   }
   return [];
+}
+
+export async function createPatient(payload: CreatePatientDto) {
+  return await openmrsFetch(`${restBaseUrl}/patient`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: payload,
+  });
 }

@@ -1,33 +1,12 @@
+import {
+  type ClientRegistrySearchRequest,
+  type RequestCustomOtpDto,
+  type RequestCustomOtpResponse,
+  type ValidateCustomOtpResponse,
+  type ValidateHieCustomOtpDto,
+} from './types';
+
 const HIE_BASE_URL = 'https://staging.ampath.or.ke/hie';
-
-export type RequestCustomOtpDto = {
-  identificationNumber: string | number;
-  identificationType: string;
-  locationUuid: string;
-};
-
-export interface RequestCustomOtpResponse {
-  message: string;
-  sessionId: string;
-  maskedPhone: string;
-}
-
-export interface ValidateHieCustomOtpDto {
-  sessionId: string;
-  otp: number | string;
-  locationUuid: string;
-}
-
-export interface ValidateCustomOtpResponse {
-  message: string;
-  isValid?: boolean;
-}
-
-export type ClientRegistrySearchRequest = {
-  identificationNumber: string | number;
-  identificationType: string;
-  locationUuid: string;
-};
 
 export type ClientRegistrySearchResponse = any[];
 

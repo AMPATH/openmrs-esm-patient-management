@@ -1,28 +1,12 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  TextInput,
-  InlineLoading,
-  InlineNotification,
-  Dropdown,
-  Modal,
-  ModalBody,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-} from '@carbon/react';
+import { Button, TextInput, InlineLoading, InlineNotification, Dropdown, Modal, ModalBody } from '@carbon/react';
 import { showSnackbar, useSession } from '@openmrs/esm-framework';
 import { useFormikContext } from 'formik';
 import styles from './client-registry-search.scss';
 import { requestCustomOtp, validateCustomOtp, fetchClientRegistryData } from './client-registry.resource';
-import { applyClientRegistryMapping } from './map-client-registry-to-form-utils';
-import ClientDetails from './new-client/client-details/client-details';
-import { type HieClient } from './types';
-import ClientDependantList from './new-client/client-dependants/list/client-depandants.component';
 import NewClientTab from './new-client/new-client-tab.component';
 import ExistingClientTab from './existing-client/existing-client-tab.component';
+import { type IdentifierType, type HieClient, IDENTIFIER_TYPES } from './types';
 
 export interface ClientRegistryLookupSectionProps {
   onClientVerified?: () => void;
@@ -30,16 +14,6 @@ export interface ClientRegistryLookupSectionProps {
   open: boolean;
   isNewClient: boolean;
 }
-
-export type IdentifierType = 'National ID' | 'Alien ID' | 'Passport' | 'Mandate Number' | 'Refugee ID';
-
-export const IDENTIFIER_TYPES: IdentifierType[] = [
-  'National ID',
-  'Alien ID',
-  'Passport',
-  'Mandate Number',
-  'Refugee ID',
-];
 
 const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = ({
   onClientVerified,
@@ -52,7 +26,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const [identifierValue, setIdentifierValue] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState('');
   const [error, setError] = useState<string>('');
@@ -181,11 +155,6 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       setLoading(false);
     }
   };
-
-  const useHieData = () => {
-    applyClientRegistryMapping(client, setFieldValue);
-    onModalClose();
-  };
   const registerOnAfyaYangu = () => {
     window.open('https://afyayangu.go.ke/', '_blank');
   };
@@ -193,7 +162,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   return (
     <Modal
       open={open}
-      size="lg"
+      size="md"
       onSecondarySubmit={onModalClose}
       onRequestClose={onModalClose}
       onRequestSubmit={registerOnAfyaYangu}
@@ -298,24 +267,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
 
           {otpVerified && client ? (
             <div className="clientDataSection">
-              {isNewClient ? (
-                <NewClientTab client={client} useHieData={useHieData} />
-              ) : (
-                <ExistingClientTab hieClient={client} />
-              )}
-              {/* <Tabs>
-                <TabList contained>
-                  <Tab>Patient</Tab>
-                  <Tab>Dependants</Tab>
-                </TabList>
-                <TabPanels>
-                  <TabPanel>{client ? <ClientDetails client={client} /> : <></>}</TabPanel>
-                  <TabPanel>
-                    {client.dependants ? <ClientDependantList hieDependants={client.dependants} /> : <></>}
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-              <Button onClick={useHieData}>Use Data</Button> */}
+              {isNewClient ? <NewClientTab client={client} /> : <ExistingClientTab hieClient={client} />}
             </div>
           ) : (
             <></>

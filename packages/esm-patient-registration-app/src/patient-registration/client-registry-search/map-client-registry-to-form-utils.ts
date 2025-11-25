@@ -8,7 +8,7 @@ import {
   IdentifierTypesUuids,
   PersonAttributeTypeUuids,
   RelationshipTypeUuids,
-} from './client-registry.types';
+} from '../client-registry/types';
 import { string } from 'yup/lib/locale';
 import { forEach } from 'lodash-es';
 

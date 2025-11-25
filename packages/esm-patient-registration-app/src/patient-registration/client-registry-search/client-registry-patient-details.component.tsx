@@ -11,7 +11,7 @@ import {
   Row,
   InlineLoading,
 } from '@carbon/react';
-import { HieIdentificationType, type AmrsPerson, type ClientRegistryBody } from './client-registry.types';
+import { HieIdentificationType, type AmrsPerson, type ClientRegistryBody } from '../client-registry/types';
 import {
   addressFields,
   getIdentifierUuid,

@@ -1,15 +1,15 @@
 import React from 'react';
-import { Tabs, TabList, Tab, TabPanels, TabPanel, Button } from '@carbon/react';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@carbon/react';
 import { type HieClient } from '../types';
 import ClientDependantList from './client-dependants/list/client-depandants.component';
 import ClientDetails from './client-details/client-details';
+import NewClientRegistration from './new-client-registration/new-client-registration';
 
 interface NewClientTabProps {
   client: HieClient;
-  useHieData: () => void;
 }
 
-const NewClientTab: React.FC<NewClientTabProps> = ({ client, useHieData }) => {
+const NewClientTab: React.FC<NewClientTabProps> = ({ client }) => {
   return (
     <>
       <Tabs>
@@ -22,7 +22,9 @@ const NewClientTab: React.FC<NewClientTabProps> = ({ client, useHieData }) => {
           <TabPanel>{client.dependants ? <ClientDependantList hieDependants={client.dependants} /> : <></>}</TabPanel>
         </TabPanels>
       </Tabs>
-      <Button onClick={useHieData}>Use Data</Button>
+      <div>
+        <NewClientRegistration client={client} />
+      </div>
     </>
   );
 };

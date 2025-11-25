@@ -1,0 +1,25 @@
+.registrationHeader {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+.extraRegQuestions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  row-gap: 5px;
+}
+.formRow {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  column-gap: 10px;
+  margin-bottom: 5px;
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}

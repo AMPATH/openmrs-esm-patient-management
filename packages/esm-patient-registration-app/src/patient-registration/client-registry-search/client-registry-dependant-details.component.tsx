@@ -18,7 +18,7 @@ import {
   HieIdentificationType,
   type AmrsPerson,
   type ClientRegistryDependantBody,
-} from './client-registry.types';
+} from '../client-registry/types';
 import {
   createPerson,
   createRelationship,

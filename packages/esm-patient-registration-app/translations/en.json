@@ -86,6 +86,7 @@
   "patientNameKnown": "Patient's Name is Known?",
   "patientRegistrationBreadcrumb": "Patient Registration",
   "refreshOrContactAdmin": "Try refreshing the page or contact your system administrator",
+  "registerOnAfyaYangu": "Register on Afya Yangu",
   "registerPatient": "Register patient",
   "registerPatientSuccessSnackbarSubtitle": "The patient can now be found by searching for them using their name or ID number",
   "registerPatientSuccessSnackbarTitle": "New Patient Created",

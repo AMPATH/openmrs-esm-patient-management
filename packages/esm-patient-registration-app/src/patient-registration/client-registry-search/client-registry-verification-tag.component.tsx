@@ -3,7 +3,7 @@ import { Button } from '@carbon/react';
 import { showModal, age, usePatient } from '@openmrs/esm-framework';
 import ClientRegistryLookupSection from './client-registry-search.component';
 import { Formik } from 'formik';
-import { type RequestCustomOtpDto } from './client-registry.types';
+import { type RequestCustomOtpDto } from '../client-registry/types';
 import ClientRegistryDetails from './client-registry-details.component';
 
 const ClientRegistryVerificationTag = () => {

@@ -6,7 +6,7 @@ import {
   type ClientRegistryBody,
   type AmrsPerson,
   type CustomRelationship,
-} from './client-registry.types';
+} from '../client-registry/types';
 import ClientRegistryPatientDetails from './client-registry-patient-details.component';
 import ClientRegistryDependantDetails from './client-registry-dependant-details.component';
 import { fetchAmrsPatientData, fetchClientRegistryData, getRelationships } from './client-registry.resource';
