@@ -26,6 +26,7 @@ const NewClientRegistration: React.FC<NewClientRegistrationProps> = ({ client })
   const maritalStatusRef = useRef<{ value: string }>();
   const locationRef = useRef<{ value: string }>();
   const locations = useLocations();
+
   const registerPatient = async () => {
     setLoading(true);
     const attributes = generatePatientAttributes();
@@ -34,7 +35,7 @@ const NewClientRegistration: React.FC<NewClientRegistrationProps> = ({ client })
       return false;
     }
     const createPersonPayload = generateAmrsPersonPayload(client);
-    createPersonPayload['attributes'] = attributes;
+    createPersonPayload['attributes'] = [...createPersonPayload['attributes'], ...attributes];
     const identifiers = await generatePatientIdentifiers();
 
     try {
@@ -193,6 +194,9 @@ const NewClientRegistration: React.FC<NewClientRegistrationProps> = ({ client })
     }
     return errors;
   };
+  if (!client) {
+    return <>No client selected</>;
+  }
   return (
     <>
       <div className={styles.registrationHeader}>

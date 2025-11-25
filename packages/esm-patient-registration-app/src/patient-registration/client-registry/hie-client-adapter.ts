@@ -1,5 +1,6 @@
 import { createPerson, createRelationship } from '../client-registry-search/client-registry.resource';
 import {
+  type AlternateContact,
   type CreateRelationshipDto,
   HieClientDependant,
   type HieDependant,
@@ -93,7 +94,7 @@ export function generateAmrsPersonPayload(hieClient: HieClient): CreatePersonDto
   const createPersonPayload: CreatePersonDto = {};
   const namesAttribute = {};
   const addresses = {};
-  const attributes = [];
+  let attributes = [];
   hieAmrsSyncFields.forEach((d) => {
     if (d === 'first_name') {
       namesAttribute['givenName'] = hieClient.first_name;
@@ -183,6 +184,9 @@ export function generateAmrsPersonPayload(hieClient: HieClient): CreatePersonDto
       });
     }
   });
+  // Add next of kin details
+  const nextOfKinAndAlternativeAttributes = generateNextOfKinAndAlternateContactDetails(hieClient.alternative_contacts);
+  attributes = [...attributes, ...nextOfKinAndAlternativeAttributes];
   if (Object.keys(namesAttribute).length > 0) {
     createPersonPayload['names'] = [namesAttribute];
   }
@@ -193,6 +197,40 @@ export function generateAmrsPersonPayload(hieClient: HieClient): CreatePersonDto
     createPersonPayload['attributes'] = attributes;
   }
   return createPersonPayload;
+}
+function generateNextOfKinAndAlternateContactDetails(alternativeContacts: AlternateContact[]) {
+  const attributes = [];
+  const alterNativeClientContact = alternativeContacts.find((a) => {
+    return a.relationship === 'Alternative Phone Number';
+  });
+  const nextOfKinContact = alternativeContacts.find((a) => {
+    return a.remarks === 'Next Of Kin';
+  });
+  if (alterNativeClientContact) {
+    if (alterNativeClientContact.contact_type === 'Phone') {
+      attributes.push({
+        value: alterNativeClientContact.contact_id,
+        attributeType: PersonAttributeTypeUuids.ALTERNATIVE_CONTACT_PHONE_NUMBER_UUID,
+      });
+    }
+  }
+  if (nextOfKinContact) {
+    if (nextOfKinContact.contact_type === 'Phone') {
+      attributes.push({
+        value: nextOfKinContact.contact_id,
+        attributeType: PersonAttributeTypeUuids.NEXT_OF_KIN_CONTACT_PHONE_NUMBER_UUID,
+      });
+    }
+    attributes.push({
+      value: nextOfKinContact.relationship,
+      attributeType: PersonAttributeTypeUuids.NEXT_OF_KIN_RELATIONSHIP_UUID,
+    });
+    attributes.push({
+      value: nextOfKinContact.contact_name,
+      attributeType: PersonAttributeTypeUuids.NEXT_OF_KIN_NAME_UUID,
+    });
+  }
+  return attributes;
 }
 function getAmrsConceptUuidFromField(fieldName: string): string {
   let conceptUuid = '';
