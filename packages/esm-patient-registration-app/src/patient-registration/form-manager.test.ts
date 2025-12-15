@@ -1,13 +1,15 @@
 import { FormManager } from './form-manager';
 import { type FormValues } from './patient-registration.types';
-import { generateIdentifier } from './patient-registration.resource';
+import { generateAmrsUniversalIdentifier, generateIdentifier } from './patient-registration.resource';
 
 jest.mock('./patient-registration.resource', () => ({
   ...jest.requireActual('./patient-registration.resource'),
   generateIdentifier: jest.fn(),
+  generateAmrsUniversalIdentifier: jest.fn(),
 }));
 
 const mockGenerateIdentifier = generateIdentifier as jest.Mock;
+const mockGenerateAmrsUniversalId = generateAmrsUniversalIdentifier as jest.Mock;
 
 const formValues: FormValues = {
   patientUuid: '',
@@ -55,18 +57,37 @@ const formValues: FormValues = {
         autoGenerationOption: { manualEntryEnabled: true, automaticGenerationEnabled: false },
       },
     },
+    amrsUniversalId: {
+      identifierUuid: 'aUuid2',
+      identifierName: 'AmrsUniversalId',
+      required: false,
+      initialValue: '',
+      identifierValue: '',
+      identifierTypeUuid: '58a4732e-1359-11df-a1f1-0026b9348838',
+      preferred: true,
+      autoGeneration: null,
+      selectedSource: null,
+    },
   },
 };
 
 describe('FormManager', () => {
   describe('createIdentifiers', () => {
     it('uses the uuid of a field name if it exists', async () => {
+      mockGenerateAmrsUniversalId.mockReturnValue('123450-6');
       const result = await FormManager.savePatientIdentifiers(true, undefined, formValues.identifiers, {}, 'Nyc');
       expect(result).toEqual([
         {
           uuid: 'aUuid',
           identifier: 'foo',
           identifierType: 'identifierType',
+          location: 'Nyc',
+          preferred: true,
+        },
+        {
+          uuid: null,
+          identifier: '123450-6',
+          identifierType: '58a4732e-1359-11df-a1f1-0026b9348838',
           location: 'Nyc',
           preferred: true,
         },
