@@ -86,6 +86,8 @@ export interface RegistrationConfig {
     registrationFormUuid: string | null;
   };
   freeTextFieldConceptUuid: string;
+  hieBaseUrl: string;
+  subDomainUrl: string;
 }
 
 export const builtInSections: Array<SectionDefinition> = [
@@ -415,6 +417,16 @@ export const esmPatientRegistrationSchema = {
   freeTextFieldConceptUuid: {
     _type: Type.ConceptUuid,
     _default: '5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  subDomainUrl: {
+    _type: Type.String,
+    _description: 'Subdomain e.g training,staging',
+    _default: '',
+  },
+  hieBaseUrl: {
+    _type: Type.String,
+    _description: 'HIE Endpoint',
+    _default: '',
   },
   _validators: [
     validator(

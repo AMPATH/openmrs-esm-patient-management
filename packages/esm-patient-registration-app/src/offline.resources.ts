@@ -102,17 +102,16 @@ async function fetchPatientIdentifierTypes(): Promise<Array<FetchedPatientIdenti
     // Primary identifier type is to be kept at the top of the list.
     const patientIdentifierTypes = patientIdentifierTypesResponse?.data?.results;
 
-    // const primaryIdentifierTypeUuid = primaryIdentifierTypeResponse?.data?.results?.[0]?.metadataUuid;
-    const primaryIdentifierTypeUuid = '58a4732e-1359-11df-a1f1-0026b9348838';
-
-    let identifierTypes = primaryIdentifierTypeResponse?.ok
-      ? [
-          mapPatientIdentifierType(
-            patientIdentifierTypes?.find((type) => type.uuid === primaryIdentifierTypeUuid),
-            true,
-          ),
-        ]
-      : [];
+    const primaryIdentifierTypeUuid = primaryIdentifierTypeResponse?.data?.results?.[0]?.metadataUuid;
+    let identifierTypes =
+      primaryIdentifierTypeResponse?.ok && primaryIdentifierTypeUuid
+        ? [
+            mapPatientIdentifierType(
+              patientIdentifierTypes?.find((type) => type.uuid === primaryIdentifierTypeUuid),
+              true,
+            ),
+          ]
+        : [];
 
     patientIdentifierTypes.forEach((type) => {
       if (type.uuid !== primaryIdentifierTypeUuid) {

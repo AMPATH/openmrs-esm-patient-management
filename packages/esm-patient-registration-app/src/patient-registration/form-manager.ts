@@ -222,7 +222,22 @@ export class FormManager {
     initialIdentifierValues: FormValues['identifiers'], // Initial identifiers assigned to the patient
     location: string,
   ): Promise<Array<PatientIdentifier>> {
-    let identifierTypeRequests = Object.values(patientIdentifiers)
+    // if its a new patient then generate the amrsUniversalId on the fly
+    let amrsIdRequest = [];
+    if (isNewPatient) {
+      const identifier = await generateAmrsUniversalIdentifier();
+      amrsIdRequest.push({
+        identifierTypeUuid: '58a4732e-1359-11df-a1f1-0026b9348838',
+        identifierValue: identifier,
+        identifierUuid: null,
+        selectedSource: null,
+        preferred: true,
+        autoGeneration: null,
+        initialValue: null,
+      });
+    }
+    const res = [...Object.values(patientIdentifiers), ...amrsIdRequest];
+    let identifierTypeRequests = [...Object.values(patientIdentifiers), ...amrsIdRequest]
       /* Since default identifier-types will be present on the form and are also in the not-required state,
         therefore we might be running into situations when there's no value and no source associated,
         hence filtering these fields out.
@@ -243,17 +258,13 @@ export class FormManager {
 
         const autoGenerationManualEntry =
           autoGeneration && selectedSource?.autoGenerationOption?.manualEntryEnabled && !!identifierValue;
-        let identifier;
-        if (identifierTypeUuid === '58a4732e-1359-11df-a1f1-0026b9348838') {
-          identifier = await generateAmrsUniversalIdentifier();
-        } else {
-          identifier =
-            !autoGeneration || autoGenerationManualEntry
-              ? identifierValue
-              : await (
-                  await generateIdentifier(selectedSource.uuid)
-                ).data.identifier;
-        }
+        const identifier =
+          !autoGeneration || autoGenerationManualEntry
+            ? identifierValue
+            : await (
+                await generateIdentifier(selectedSource.uuid)
+              ).data.identifier;
+
         const identifierToCreate = {
           uuid: identifierUuid,
           identifier,

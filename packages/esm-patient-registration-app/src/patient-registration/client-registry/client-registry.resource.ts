@@ -1,3 +1,4 @@
+import { getHieBaseUrl } from '../../utils/get-base-url';
 import {
   type ClientRegistrySearchRequest,
   type RequestCustomOtpDto,
@@ -5,8 +6,6 @@ import {
   type ValidateCustomOtpResponse,
   type ValidateHieCustomOtpDto,
 } from './types';
-
-const HIE_BASE_URL = 'https://staging.ampath.or.ke/hie';
 
 export type ClientRegistrySearchResponse = any[];
 
@@ -26,7 +25,8 @@ async function postJson<T>(url: string, payload: unknown): Promise<T> {
 }
 
 export async function requestCustomOtp(payload: RequestCustomOtpDto): Promise<RequestCustomOtpResponse> {
-  const url = `${HIE_BASE_URL}/client/send-custom-otp`;
+  const hieBaseUrl = await getHieBaseUrl();
+  const url = `${hieBaseUrl}/client/send-custom-otp`;
   const formattedPayload = {
     identificationNumber: payload.identificationNumber,
     identificationType: payload.identificationType,
@@ -36,7 +36,8 @@ export async function requestCustomOtp(payload: RequestCustomOtpDto): Promise<Re
 }
 
 export async function validateCustomOtp(payload: ValidateHieCustomOtpDto): Promise<ValidateCustomOtpResponse> {
-  const url = `${HIE_BASE_URL}/client/validate-custom-otp`;
+  const hieBaseUrl = await getHieBaseUrl();
+  const url = `${hieBaseUrl}/client/validate-custom-otp`;
   const formattedPayload = {
     sessionId: payload.sessionId,
     otp: payload.otp,
@@ -48,7 +49,8 @@ export async function validateCustomOtp(payload: ValidateHieCustomOtpDto): Promi
 export async function fetchClientRegistryData(
   payload: ClientRegistrySearchRequest,
 ): Promise<ClientRegistrySearchResponse> {
-  const url = `${HIE_BASE_URL}/client/search`;
+  const hieBaseUrl = await getHieBaseUrl();
+  const url = `${hieBaseUrl}/client/search`;
   const formattedPayload = {
     identificationNumber: payload.identificationNumber,
     identificationType: payload.identificationType,
