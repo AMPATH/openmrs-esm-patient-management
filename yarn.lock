@@ -12,6 +12,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ampath/esm-morgue-app@workspace:packages/esm-morgue-app":
+  version: 0.0.0-use.local
+  resolution: "@ampath/esm-morgue-app@workspace:packages/esm-morgue-app"
+  dependencies:
+    lodash-es: "npm:^4.17.15"
+    react-to-print: "npm:2.14.13"
+  peerDependencies:
+    "@carbon/react": 1.x
+    "@openmrs/esm-framework": 8.x
+    react: ^18.1.0
+    react-i18next: 11.x
+    react-router-dom: 6.x
+    swr: 2.x
+  languageName: unknown
+  linkType: soft
+
 "@ampath/esm-patient-registration-app@workspace:packages/esm-patient-registration-app":
   version: 0.0.0-use.local
   resolution: "@ampath/esm-patient-registration-app@workspace:packages/esm-patient-registration-app"
@@ -1410,6 +1426,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@carbon/icon-helpers@npm:^10.70.0":
+  version: 10.70.0
+  resolution: "@carbon/icon-helpers@npm:10.70.0"
+  dependencies:
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10/da424bb426ecf82c63bcec7a4ba5e9debc8e37574349250179240bcfcf9f4c8a177517e19eee11fc1a03cd47df9dc3fe2bb67832ed0a862c7383069f74b35c9c
+  languageName: node
+  linkType: hard
+
 "@carbon/icons-react@npm:^11.68.0":
   version: 11.68.0
   resolution: "@carbon/icons-react@npm:11.68.0"
@@ -1438,6 +1463,19 @@ __metadata:
   dependencies:
     "@ibm/telemetry-js": "npm:^1.5.0"
   checksum: 10/b20f42cff7950bc3e1e0add0ce31330574c6a4b21b6c8597156c1a31007654bdbe63439f019f07dc59a2ed60e70c7c7215c0f78cd4de06bada0777e8d2e3bff8
+  languageName: node
+  linkType: hard
+
+"@carbon/pictograms-react@npm:^11.66.0":
+  version: 11.92.0
+  resolution: "@carbon/pictograms-react@npm:11.92.0"
+  dependencies:
+    "@carbon/icon-helpers": "npm:^10.70.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+    prop-types: "npm:^15.8.1"
+  peerDependencies:
+    react: ">=16"
+  checksum: 10/c3d0c415c0f0909d70c90e74900c6adff554218187fdf0e54850ce5cfed1010fcb6ae0fb8ca35558a17cc8819fd26f59d444ee4315013ef78e8000ee93375d45
   languageName: node
   linkType: hard
 
@@ -3499,6 +3537,7 @@ __metadata:
   resolution: "@openmrs/esm-patient-management@workspace:."
   dependencies:
     "@babel/core": "npm:^7.11.6"
+    "@carbon/pictograms-react": "npm:^11.66.0"
     "@carbon/react": "npm:^1.83.0"
     "@openmrs/esm-framework": "npm:next"
     "@playwright/test": "npm:^1.53.2"
@@ -17358,6 +17397,16 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
   checksum: 10/f59f86aca0797e389698fc20a7e88a26748e00e56e011dd6d9f7a4fa1ba7fda32083bc8e5f2af000957d20ad9f4c74dd151cb667b958dcac8f3959d860905fd4
+  languageName: node
+  linkType: hard
+
+"react-to-print@npm:2.14.13":
+  version: 2.14.13
+  resolution: "react-to-print@npm:2.14.13"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 10/cc4e438b5b7e5c67a73ca3d87ff0f1b5a550a7e6c1a1911cded14c9591b286efd82029bd0447e016b0b404f274d546a108e760fd7867e6b73342dba450282a29
   languageName: node
   linkType: hard
 
