@@ -12,22 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ampath/esm-morgue-app@workspace:packages/esm-morgue-app":
-  version: 0.0.0-use.local
-  resolution: "@ampath/esm-morgue-app@workspace:packages/esm-morgue-app"
-  dependencies:
-    lodash-es: "npm:^4.17.15"
-    react-to-print: "npm:2.14.13"
-  peerDependencies:
-    "@carbon/react": 1.x
-    "@openmrs/esm-framework": 8.x
-    react: ^18.1.0
-    react-i18next: 11.x
-    react-router-dom: 6.x
-    swr: 2.x
-  languageName: unknown
-  linkType: soft
-
 "@ampath/esm-patient-registration-app@workspace:packages/esm-patient-registration-app":
   version: 0.0.0-use.local
   resolution: "@ampath/esm-patient-registration-app@workspace:packages/esm-patient-registration-app"
@@ -17374,16 +17358,6 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
   checksum: 10/f59f86aca0797e389698fc20a7e88a26748e00e56e011dd6d9f7a4fa1ba7fda32083bc8e5f2af000957d20ad9f4c74dd151cb667b958dcac8f3959d860905fd4
-  languageName: node
-  linkType: hard
-
-"react-to-print@npm:2.14.13":
-  version: 2.14.13
-  resolution: "react-to-print@npm:2.14.13"
-  peerDependencies:
-    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/cc4e438b5b7e5c67a73ca3d87ff0f1b5a550a7e6c1a1911cded14c9591b286efd82029bd0447e016b0b404f274d546a108e760fd7867e6b73342dba450282a29
   languageName: node
   linkType: hard
 
