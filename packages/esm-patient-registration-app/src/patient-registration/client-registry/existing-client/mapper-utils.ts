@@ -127,7 +127,7 @@ export const mapFieldValue = (field: string, hieData: HieClient, amrsPerson: Amr
       arr = [sanitizeValue(amrsPerson?.person?.preferredName?.familyName), sanitizeValue(hieData?.last_name)];
       break;
     case 'gender':
-      arr = [sanitizeValue(amrsPerson?.person?.gender), sanitizeValue(hieData?.gender)];
+      arr = [sanitizeValue(amrsPerson?.person?.gender), sanitizeValue(hieData?.gender === 'Female' ? 'F' : 'M')];
       break;
     case 'birthdate':
       arr = [
@@ -243,10 +243,7 @@ export const mapFieldValue = (field: string, hieData: HieClient, amrsPerson: Amr
             (v) => v.identifierType.uuid === getIdentifierUuid(HieIdentificationType.Cr),
           )?.identifier,
         ),
-        sanitizeValue(
-          hieData?.other_identifications.find((v) => v.identification_type === HieIdentificationType.Cr)
-            ?.identification_number,
-        ),
+        sanitizeValue(hieData?.id),
       ];
       break;
     case 'TemporaryDependantID':
