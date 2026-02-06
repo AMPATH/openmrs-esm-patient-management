@@ -54,6 +54,10 @@ const ExistingClientTab: React.FC<ExistingClientTabProps> = ({ hieClient }) => {
     }
   };
 
+  const handleDataSync = () => {
+    window.location.reload();
+  };
+
   return loading ? (
     <InlineLoading description="Fetching existing client details..." />
   ) : (
@@ -69,7 +73,7 @@ const ExistingClientTab: React.FC<ExistingClientTabProps> = ({ hieClient }) => {
               hieClient={hieClient}
               amrsClient={amrsClient}
               fromDependant={false}
-              onDataSync={handleAmrsPersonDetails}
+              onDataSync={handleDataSync}
             />
           )}
         </TabPanel>
@@ -79,10 +83,7 @@ const ExistingClientTab: React.FC<ExistingClientTabProps> = ({ hieClient }) => {
               hieDependants={hieClient.dependants}
               amrsClient={amrsClient}
               patientRelationships={relationships}
-              onDataSync={() => {
-                handleAmrsPersonDetails();
-                handleFetchPatientRelationships();
-              }}
+              onDataSync={handleDataSync}
             />
           ) : (
             <div>Dependants not found.</div>
