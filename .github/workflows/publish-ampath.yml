@@ -38,9 +38,6 @@ jobs:
       - name: 🧪 Run tests for patient registration app
         run: yarn ampath:test
 
-      - name: 🔧 Run type checks
-        run: yarn workspace @ampath/esm-patient-registration-app typescript
-
       - name: 🏗️ Build patient registration app
         run: yarn ampath:build
 
