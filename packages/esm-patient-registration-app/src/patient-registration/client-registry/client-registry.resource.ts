@@ -1,3 +1,4 @@
+import { openmrsFetch, type PatientIdentifier, type PersonAttribute, restBaseUrl } from '@openmrs/esm-framework';
 import { getHieBaseUrl } from '../../utils/get-base-url';
 import {
   type ClientRegistrySearchRequest,
@@ -10,7 +11,7 @@ import {
 export type ClientRegistrySearchResponse = any[];
 
 async function postJson<T>(url: string, payload: unknown): Promise<T> {
-  const response = await fetch(url, {
+  const response = await openmrsFetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -31,6 +32,7 @@ export async function requestCustomOtp(payload: RequestCustomOtpDto): Promise<Re
     identificationNumber: payload.identificationNumber,
     identificationType: payload.identificationType,
     locationUuid: payload.locationUuid,
+    phoneNumber: payload.phoneNumber,
   };
   return postJson<RequestCustomOtpResponse>(url, formattedPayload);
 }
@@ -57,4 +59,26 @@ export async function fetchClientRegistryData(
     locationUuid: payload.locationUuid,
   };
   return postJson<ClientRegistrySearchResponse>(url, formattedPayload);
+}
+
+export async function fetchPatientAttributes(patientUuid: string) {
+  const url = `${restBaseUrl}/person/${patientUuid}/attribute`;
+  const resp = await openmrsFetch(url);
+  const data: { results: PersonAttribute[] } = await resp.json();
+  if (data && data['results']) {
+    return data['results'];
+  } else {
+    return [];
+  }
+}
+
+export async function fetchPatientIdentifiers(patientUuid: string) {
+  const url = `${restBaseUrl}/patient/${patientUuid}/identifier`;
+  const resp = await openmrsFetch(url);
+  const data: { results: PatientIdentifier[] } = await resp.json();
+  if (data && data['results']) {
+    return data['results'];
+  } else {
+    return [];
+  }
 }

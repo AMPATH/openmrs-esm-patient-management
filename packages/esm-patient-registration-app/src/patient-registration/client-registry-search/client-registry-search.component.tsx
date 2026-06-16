@@ -97,6 +97,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
         identificationNumber: identifier,
         identificationType: identificationType,
         locationUuid,
+        phoneNumber: '',
       };
       const response = await withTimeout(requestCustomOtp(payload));
       setSessionId(response.sessionId);
@@ -140,6 +141,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
         identificationNumber: identifier,
         identificationType: identificationType,
         locationUuid,
+        phoneNumber: '',
       };
       setOtpVerified(true);
       onClientVerified?.(customOtpPayload);
