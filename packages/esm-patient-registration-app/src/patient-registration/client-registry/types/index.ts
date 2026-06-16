@@ -258,6 +258,7 @@ export type RequestCustomOtpDto = {
   identificationNumber: string | number;
   identificationType: string;
   locationUuid: string;
+  phoneNumber: string;
 };
 
 export interface RequestCustomOtpResponse {
@@ -491,13 +492,7 @@ export const RelationshipTypeUuids = {
 
 export type IdentifierType = 'National ID' | 'Alien ID' | 'Passport' | 'Mandate Number' | 'Refugee ID';
 
-export const IDENTIFIER_TYPES: IdentifierType[] = [
-  'National ID',
-  'Alien ID',
-  'Passport',
-  'Mandate Number',
-  'Refugee ID',
-];
+export const IDENTIFIER_TYPES: IdentifierType[] = ['National ID', 'Alien ID', 'Mandate Number', 'Refugee ID'];
 
 export interface CreateRelationshipDto {
   personA: string;

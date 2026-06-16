@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, TextInput, InlineLoading, InlineNotification, Dropdown, Modal, ModalBody } from '@carbon/react';
-import { showSnackbar, useSession } from '@openmrs/esm-framework';
+import { type PatientIdentifier, type PersonAttribute, showSnackbar, usePatient, useSession } from '@openmrs/esm-framework';
 import { useFormikContext } from 'formik';
 import styles from './client-registry-search.scss';
-import { requestCustomOtp, validateCustomOtp, fetchClientRegistryData } from './client-registry.resource';
+import {
+  requestCustomOtp,
+  validateCustomOtp,
+  fetchClientRegistryData,
+  fetchPatientAttributes,
+  fetchPatientIdentifiers,
+} from './client-registry.resource';
 import NewClientTab from './new-client/new-client-tab.component';
 import ExistingClientTab from './existing-client/existing-client-tab.component';
-import { type IdentifierType, type HieClient, IDENTIFIER_TYPES } from './types';
+import {
+  type IdentifierType,
+  type HieClient,
+  IDENTIFIER_TYPES,
+  PersonAttributeTypeUuids,
+  HieIdentificationType,
+  IdentifierTypesUuids,
+} from './types';
 
 export interface ClientRegistryLookupSectionProps {
   onClientVerified?: () => void;
@@ -23,7 +36,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
 }) => {
   const { setFieldValue } = useFormikContext<any>();
   const [identifierType, setIdentifierType] = useState<IdentifierType>('National ID');
-  const [identifierValue, setIdentifierValue] = useState('');
+  const [identifierValue, setIdentifierValue] = useState<string>('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState<boolean>(false);
@@ -33,7 +46,22 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const [error, setError] = useState<string>('');
   const { sessionLocation } = useSession();
   const [client, setClient] = useState<HieClient>();
-  const locationUuid = sessionLocation?.uuid;
+  const locationUuid = sessionLocation?.uuid ?? '';
+  const [patientAttributes, setPatientAttributes] = useState<PersonAttribute[]>([]);
+  const [patientIdentifiers, setPatientIdentifiers] = useState<PatientIdentifier[]>([]);
+  const { patient } = usePatient();
+
+  useEffect(() => {
+    if (patient) {
+      getPatientAttributes(patient.id);
+      getPatientIdentifiers(patient.id);
+    }
+  }, [patient]);
+
+  const phoneNumber = useMemo(
+    () => getPatientAttribute(patientAttributes, PersonAttributeTypeUuids.CONTACT_PHONE_NUMBER_UUID),
+    [patientAttributes],
+  );
 
   async function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
     const controller = new AbortController();
@@ -90,6 +118,10 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       setError('Please enter a valid ID value');
       return;
     }
+    if (!phoneNumber) {
+      setError('No phone number set. Please add the phone number patient attribute');
+      return;
+    }
 
     setIsSendingOtp(true);
     setError('');
@@ -98,7 +130,8 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       const payload = {
         identificationNumber: identifierValue,
         identificationType: identifierType,
-        locationUuid,
+        phoneNumber: phoneNumber ? (phoneNumber.value ?? '') : '',
+        locationUuid: locationUuid ?? '',
       };
 
       const response = await withTimeout(requestCustomOtp(payload));
@@ -159,6 +192,57 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const registerOnAfyaYangu = () => {
     window.open('https://afyayangu.go.ke/', '_blank');
   };
+  async function getPatientAttributes(patientUuid: string) {
+    const data = await fetchPatientAttributes(patientUuid);
+    if (data) {
+      setPatientAttributes(data);
+    }
+  }
+  function getPatientAttribute(patientAttributes: PersonAttribute[], attributeTypeUuid: string) {
+    if (!patientAttributes || !attributeTypeUuid) {
+      return null;
+    }
+    return patientAttributes.find((a) => {
+      return a.attributeType?.uuid === attributeTypeUuid;
+    });
+  }
+  async function getPatientIdentifiers(patientUuid: string) {
+    const data = await fetchPatientIdentifiers(patientUuid);
+    if (data) {
+      setPatientIdentifiers(data);
+    }
+  }
+  function handleIdentifierChange(value: { selectedItem: IdentifierType }) {
+    const selectedValue = value.selectedItem;
+    setIdentifierType(selectedValue);
+    const identifier = getPatientIdentifier(selectedValue);
+    setIdentifierValue(identifier?.identifier ?? '');
+  }
+  function getPatientIdentifier(selectedIdentifierType: IdentifierType) {
+    let identifier: PatientIdentifier | undefined;
+    switch (selectedIdentifierType) {
+      case HieIdentificationType.NationalID:
+        identifier = getIdentifier(patientIdentifiers, IdentifierTypesUuids.NATIONAL_ID_UUID);
+        break;
+      case HieIdentificationType.MandateNumber:
+        identifier = getIdentifier(patientIdentifiers, IdentifierTypesUuids.MANDATE_NUMBER_UUID);
+        break;
+      case HieIdentificationType.AlienID:
+        identifier = getIdentifier(patientIdentifiers, IdentifierTypesUuids.ALIEN_ID_UUID);
+        break;
+      case HieIdentificationType.RefugeeID:
+        identifier = getIdentifier(patientIdentifiers, IdentifierTypesUuids.REFUGEE_ID_UUID);
+        break;
+      default:
+        identifier = getIdentifier(patientIdentifiers, IdentifierTypesUuids.NATIONAL_ID_UUID);
+    }
+    return identifier;
+  }
+  function getIdentifier(patientIdentifiers: PatientIdentifier[], identifierTypeUuid: string) {
+    return patientIdentifiers.find((i) => {
+      return i.identifierType?.uuid === identifierTypeUuid;
+    });
+  }
 
   return (
     <Modal
@@ -189,20 +273,16 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
                         label="Identifier Type"
                         titleText="Select Identifier Type"
                         items={IDENTIFIER_TYPES}
-                        selectedItem={identifierType}
-                        onChange={({ selectedItem }) => setIdentifierType(selectedItem as IdentifierType)}
+                        onChange={handleIdentifierChange}
                         disabled={otpSent}
                       />
                     </div>
-
                     <div className={styles.formControl}>
                       <TextInput
                         id="identifier-value"
                         labelText={`${identifierType} Value`}
                         value={identifierValue}
-                        onChange={(e) => setIdentifierValue(e.target.value)}
-                        disabled={otpSent}
-                        placeholder={`Enter ${identifierType.toLowerCase()} value`}
+                        readonly={true}
                       />
                     </div>
                   </div>
@@ -244,6 +324,11 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
                         <div className={styles.actionBtn}>
                           <Button kind="tertiary" onClick={() => setOtpSent(false)}>
                             Back
+                          </Button>
+                        </div>
+                        <div className={styles.actionBtn}>
+                          <Button kind="primary" onClick={() => setOtpVerified(true)}>
+                            Skip OTP
                           </Button>
                         </div>
                       </div>
