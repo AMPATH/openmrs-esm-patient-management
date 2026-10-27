@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, TextInput, InlineLoading, InlineNotification, Dropdown, Modal, ModalBody } from '@carbon/react';
-import { type PatientIdentifier, type PersonAttribute, showSnackbar, usePatient, useSession } from '@openmrs/esm-framework';
+import {
+  type PatientIdentifier,
+  type PersonAttribute,
+  showSnackbar,
+  usePatient,
+  useSession,
+} from '@openmrs/esm-framework';
 import { useFormikContext } from 'formik';
 import styles from './client-registry-search.scss';
 import {
@@ -19,6 +25,7 @@ import {
   PersonAttributeTypeUuids,
   HieIdentificationType,
   IdentifierTypesUuids,
+  type ClientRegistryBody,
 } from './types';
 
 export interface ClientRegistryLookupSectionProps {
@@ -27,6 +34,17 @@ export interface ClientRegistryLookupSectionProps {
   open: boolean;
   isNewClient: boolean;
 }
+
+export const maskAllButFirstAndLastThree = (value: string): string => {
+  let arrValue = value.split('');
+  for (let i = 0; i < value.length; i++) {
+    if (i > 3 && i < value.length - 3) {
+      arrValue[i] = '*';
+    }
+  }
+  const maskedValue = arrValue.join('');
+  return maskedValue;
+};
 
 const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = ({
   onClientVerified,
@@ -49,6 +67,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   const locationUuid = sessionLocation?.uuid ?? '';
   const [patientAttributes, setPatientAttributes] = useState<PersonAttribute[]>([]);
   const [patientIdentifiers, setPatientIdentifiers] = useState<PatientIdentifier[]>([]);
+  const [hieData, setHieData] = useState<ClientRegistryBody>();
   const { patient } = usePatient();
 
   useEffect(() => {
@@ -62,6 +81,37 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
     () => getPatientAttribute(patientAttributes, PersonAttributeTypeUuids.CONTACT_PHONE_NUMBER_UUID),
     [patientAttributes],
   );
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    if (!identifierValue) {
+      setHieData(undefined);
+      return;
+    }
+
+    const fetchClient = async () => {
+      try {
+        const response = await fetchClientRegistryData({
+          identificationNumber: identifierValue,
+          identificationType: identifierType,
+          locationUuid,
+        });
+        if (isCurrentRequest) {
+          setHieData(response?.[0]);
+        }
+      } catch {
+        if (isCurrentRequest) {
+          setHieData(undefined);
+        }
+      }
+    };
+
+    fetchClient();
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [identifierType, identifierValue, locationUuid]);
 
   async function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
     const controller = new AbortController();
@@ -114,12 +164,16 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
   };
 
   const handleSendOtp = async () => {
+    if (isSendingOtp) {
+      return;
+    }
+
     if (!identifierValue.trim()) {
       setError('Please enter a valid ID value');
       return;
     }
-    if (!phoneNumber) {
-      setError('No phone number set. Please add the phone number patient attribute');
+    if (!hieData?.phone) {
+      setError('No phone number found in Client Registry. OTP cannot be sent.');
       return;
     }
 
@@ -130,7 +184,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
       const payload = {
         identificationNumber: identifierValue,
         identificationType: identifierType,
-        phoneNumber: phoneNumber ? (phoneNumber.value ?? '') : '',
+        phoneNumber: String(hieData.phone),
         locationUuid: locationUuid ?? '',
       };
 
@@ -286,10 +340,17 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
                       />
                     </div>
                   </div>
+                  <InlineNotification
+                    kind="info"
+                    lowContrast
+                    hideCloseButton
+                    title="OTP"
+                    subtitle={`The OTP will be sent to the phone number registered in Client Registry ${hieData?.phone ? maskAllButFirstAndLastThree(String(hieData.phone)) : ''}.`}
+                  />
                   <div className={styles.formRow}>
                     <div className={styles.formControl}>
-                      <Button kind="primary" onClick={handleSendOtp} disabled={loading}>
-                        {loading ? <InlineLoading description="Sending..." /> : 'Send OTP'}
+                      <Button kind="primary" onClick={handleSendOtp} disabled={isSendingOtp || !hieData?.phone}>
+                        {isSendingOtp ? <InlineLoading description="Sending..." /> : 'Send OTP'}
                       </Button>
                     </div>
                   </div>
@@ -304,7 +365,7 @@ const ClientRegistryLookupSection: React.FC<ClientRegistryLookupSectionProps> = 
                             id="otp-input"
                             labelText="Enter OTP"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOtp(e.target.value)}
                             disabled={otpVerified}
                             placeholder="Enter the code sent to your phone"
                           />
